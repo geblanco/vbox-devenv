@@ -1,0 +1,19 @@
+# Count ram, comes as kb
+_avail_mem=$(grep ^MemTotal /proc/meminfo | awk '{print $2}')
+# to MB
+_avail_mem=$(( $_avail_mem / 1024))
+# Count processors
+_avail_cpu=$(grep "processor" /proc/cpuinfo | wc -l)
+
+IMAGE_NAME="lihlith"
+DISK_FILE="/home/gb/data/lihlith_vm/data.vdi"
+# 100GB, in MB
+DISK_SIZE=$(( 100 * 1024 ))
+# 80% of available ram memory
+IMAGE_RAM=$(( $_avail_mem * 80/100 ))
+# 80% of available cpus
+IMAGE_CPU=$(( $_avail_cpu * 80/100 ))
+
+# ISO to install
+ISO_NAME="ubuntu-18.04.2-live-server-amd64.iso"
+ISO_URL="http://releases.ubuntu.com/18.04.2/${ISO_NAME}"
