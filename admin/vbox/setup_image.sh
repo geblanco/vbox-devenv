@@ -74,18 +74,33 @@ get_iso() {
   fi
 }
 
+clean_networks() {
+  local n_nets=$1
+  for (( i = $n_nets; i >= 0; i-- )); do
+    vboxmanage hostonlyif remove "vboxnet${i}" 1>/dev/null 2>/dev/null
+    vboxmanage dhcpserver remove --ifname "vboxnet${i}" 1>/dev/null 2>/dev/null
+  done
+}
+
 setup_network() {
-  # remove hostonlyifs network, just in case
+  local netname=${1:-vboxnet0}
+  local n_nets=$(vboxmanage list hostonlyifs | grep ^Name | wc -l)
+  # don't exit on error
   set +e
-  vboxmanage hostonlyif remove vboxnet0 1>/dev/null 2>/dev/null
+  if [[ $n_nets -gt 0 ]]; then
+    # 0 indexed
+    confirm "More Virtual Networks detected, erase them?" && (clean_networks $(( $n_nets - 1 )))
+  fi
   set -e
   vboxmanage hostonlyif create
-  vboxmanage dhcpserver remove --ifname vboxnet0
+  # 0 indexed
+  local n_nets=$(( $(vboxmanage list hostonlyifs | grep ^Name | wc -l) -1 ))
+  local network="vboxnet${n_nets}"
   # configure it to use a dhcp server and be visible on host
-  vboxmanage dhcpserver add --ifname vboxnet0 \
+  vboxmanage dhcpserver add --ifname $network \
     --ip 192.168.60.100 --netmask 255.255.255.0 \
     --lowerip 192.168.60.101 --upperip 192.168.60.254 --enable
-  vboxmanage hostonlyif ipconfig vboxnet0 --ip 192.168.60.1
+  vboxmanage hostonlyif ipconfig $network --ip 192.168.60.1
 }
 
 create_vm $IMAGE_NAME
@@ -111,10 +126,12 @@ setup_network
 
 echo "Setup Virtual Machine"
 echo " - memory, cpu and network"
+n_nets=$(( $(vboxmanage list hostonlyifs | grep ^Name | wc -l) -1 ))
+network="vboxnet${n_nets}"
 vboxmanage modifyvm $IMAGE_NAME \
   --memory $IMAGE_RAM --cpus $IMAGE_CPU \
   --vram 128 --acpi on --boot1 dvd \
-  --nic1 hostonly --hostonlyadapter1 vboxnet0 \
+  --nic1 hostonly --hostonlyadapter1 $network \
   --nic2 nat
 
 echo " - boot order"
