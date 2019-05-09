@@ -1,0 +1,5 @@
+PKGS=(
+  'zip'
+  'unzip'
+  'python3-pip'
+)

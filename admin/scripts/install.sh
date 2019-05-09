@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# get pakages file
+[ -f `pwd`/packages ] && source `pwd`/packages
+
 # first boot, install various packages
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y python3-pip tree
+sudo apt install -y ${PKGS[@]}
 sudo cp interfaces.yaml /etc/netplan/01-netcfg.yaml
 sudo netplan apply
 
