@@ -6,7 +6,7 @@ _avail_mem=$(( $_avail_mem / 1024))
 _avail_cpu=$(grep "processor" /proc/cpuinfo | wc -l)
 
 IMAGE_NAME="lihlith"
-DISK_FILE="/home/gb/data/lihlith_vm/data.vdi"
+DISK_FILE="/data/lihlith_vm/data.vdi"
 # 100GB, in MB
 DISK_SIZE=$(( 100 * 1024 ))
 # 80% of available ram memory
