@@ -77,8 +77,8 @@ get_iso() {
 clean_networks() {
   local n_nets=$1
   for (( i = $n_nets; i >= 0; i-- )); do
-    vboxmanage hostonlyif remove "vboxnet${i}" 1>/dev/null 2>/dev/null
     vboxmanage dhcpserver remove --ifname "vboxnet${i}" 1>/dev/null 2>/dev/null
+    vboxmanage hostonlyif remove "vboxnet${i}" 1>/dev/null 2>/dev/null
   done
 }
 
